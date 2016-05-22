@@ -1,3 +1,4 @@
+# coding=utf-8
 """ viola.py : Handles and sends viola packets """
 
 import crypto
@@ -84,11 +85,8 @@ def handle_room_message_packet(packet_payload, parsed, server):
                                "red") # XXX this won't work
         return ""
 
-
-
-    msg = "[ENCRYPTED] %s" % plaintext
-    msg_in = otrlib.build_privmsg_in(sender_host, channel, msg)
-    return msg_in
+    msg_in = otrlib.build_privmsg_in(sender_host, channel, plaintext)
+    return msg_in[0] + '⚷' + msg_in[1:]
 
 
 MINIMUM_KEY_TRANSPORT_PAYLOAD_LEN = SIG_LEN + PUBKEY_LEN*2 + MESSAGE_KEY_ARRAY_CELL_LEN
@@ -282,9 +280,7 @@ def forward_received_unencrypted_msg_to_user(parsed, server):
     else:
         target = parsed['to_nick']
 
-    msg = "[UNENCRYPTED] %s" % parsed['text'] # XXX need better indicator (use status bar, etc.)
-    msg_in = otrlib.build_privmsg_in(sender, channel, msg)
-    return msg_in
+    return otrlib.build_privmsg_in(sender, channel, parsed['text'])
 
 def received_irc_msg_cb(irc_msg, server):
     """Received IRC message 'msg'. Decode and return the message."""
